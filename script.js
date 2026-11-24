@@ -83,7 +83,6 @@
   var movieAlphaButtons = {};
   var fadeTimers = { main: null, sub: null };
 
-  document.title = SITE.name;
   $("siteName").textContent = SITE.name;
 
   function el(tag, className, text) {
