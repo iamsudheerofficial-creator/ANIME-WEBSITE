@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ani - Clips</title>
+  <meta name="description" content="Free glossy clip library for editors." />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Glossy Blurred Wallpaper Background (images/bg.jpg) with Slow Breathing Motion -->
+  <div class="bg" aria-hidden="true">
+    <div class="bg-image"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <!-- Full-Width Edge-to-Edge Glass Navbar (Top Glow Line Only, Bottom Drop Shadow Only) -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="nav-left">
+        <button id="logoBtn" class="brand" type="button" aria-label="Go to Home">
+          <span class="brand-logo-wrap">
+            <img class="brand-logo" src="images/logo.jpg" alt="Ani - Clips logo" />
+          </span>
+          <span class="brand-name" id="siteName">Ani - Clips</span>
+        </button>
+
+        <span class="nav-divider" aria-hidden="true"></span>
+
+        <nav id="topNav" class="top-links" aria-label="Main navigation">
+          <span id="navSlider" class="nav-slider" aria-hidden="true"></span>
+        </nav>
+      </div>
+
+      <div class="nav-right">
+        <label class="search">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <input id="search" type="search" placeholder="Search anime, movies, characters..." autocomplete="off" />
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <main class="main" id="mainScroll">
+      <!-- Smooth 0.5-Second Downward Fade-Out & Fade-In Main Stage -->
+      <div id="stageBody" class="stage-body">
+        <!-- 1. Clean Home Welcome Screen -->
+        <section id="welcomeSection" class="welcome-screen" hidden>
+          <div class="welcome-glass">
+            <h1 class="welcome-title">WELCOME</h1>
+          </div>
+        </section>
+
+        <!-- 2. Breadcrumb / Back & Quality Bar (Shown when inside a nested Anime or Movie or Others) -->
+        <section id="crumbBar" class="crumb-wrap" hidden>
+          <div class="crumb-left">
+            <button id="backBtn" class="glass-pill-btn" type="button" hidden>&#8592; Back</button>
+            <div id="crumbPath" class="crumb-path" hidden></div>
+          </div>
+          <div id="qualityFilters" class="quality-filters"></div>
+        </section>
+
+        <!-- 3. Spotlight Box (Shown on Anime, Movie, Others, Character Detail, Search) -->
+        <!-- Includes the iOS Sliding Sub-Tabs inside .spot-dock (Flow Frames | Vocals | Manga Panels for Anime, All | Scenes | Cuts for Movie) -->
+        <section id="spotlightSection" class="spotlight-card" hidden>
+          <div class="spot-art" id="spotArt">
+            <div class="ph">&#9654;</div>
+          </div>
+
+          <div class="spot-info">
+            <div class="spot-eyebrow">
+              <span class="eq-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span id="spotEyebrow">COLLECTION</span>
+            </div>
+
+            <h1 id="spotTitle" class="spot-title">Ani - Clips</h1>
+
+            <div class="spot-sub-row">
+              <span id="spotSubtitle" class="spot-sub"></span>
+              <span class="verified-dot" title="Free to use">&#10003;</span>
+            </div>
+
+            <!-- Separate iOS Sliding Pill Tabs positioned above the Browse dock -->
+            <div id="dockTabsWrap" class="dock-tabs-wrap" hidden>
+              <div id="subTabs" class="sub-tabs" role="tablist">
+                <span id="subSlider" class="sub-slider" aria-hidden="true"></span>
+              </div>
+            </div>
+
+
+          </div>
+        </section>
+
+        <!-- Sub-Stage Area (Fades smoothly 0.5s downward when switching Flow Frames / Vocals / Manga Panels or All / Scenes / Cuts) -->
+        <div id="subStage" class="stage-body">
+          <!-- 4. Anime Library (Alphabets + Sort + All Anime Grid Only — No Trending / Recent) -->
+          <section id="animeCatalog" class="cat-block" hidden>
+            <div class="cat-block-head">
+              <h2 class="cat-heading-inline">
+                <span class="blink-star amber" aria-hidden="true">&#10022;</span>
+                <span class="head-main">LIBRARY</span>
+                <span class="head-sep">-</span>
+                <span id="animeLibSub" class="head-sub">All anime</span>
+              </h2>
+              <span id="allAnimeCount" class="sec-count"></span>
+            </div>
+
+            <div class="library-controls">
+              <div id="animeSortBar" class="sort-tabs" role="tablist">
+                <span id="sortSlider" class="sort-slider" aria-hidden="true"></span>
+              </div>
+              <div id="alphaBar" class="alpha-bar" aria-label="Filter anime by alphabet">
+                <span id="alphaSlider" class="alpha-slider" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div id="allAnimeGrid" class="anime-poster-grid"></div>
+            <p id="animeEmpty" class="empty" hidden>No anime found for this letter.</p>
+          </section>
+
+          <!-- 5. Collections Grid (All Movies List with Sort Bar & Full A-Z Alphabet Filter) -->
+          <section id="collectionsSection" hidden>
+            <div class="cat-block-head">
+              <h2 id="collectionsTitle" class="cat-heading-inline">
+                <span class="blink-star amber" aria-hidden="true">&#10022;</span>
+                <span class="head-main">LIBRARY</span>
+                <span class="head-sep">-</span>
+                <span class="head-sub">All movies</span>
+              </h2>
+              <span id="collectionsCount" class="sec-count"></span>
+            </div>
+
+            <div id="movieControls" class="library-controls" hidden>
+              <div id="movieSortBar" class="sort-tabs" role="tablist">
+                <span id="movieSortSlider" class="sort-slider" aria-hidden="true"></span>
+              </div>
+              <div id="movieAlphaBar" class="alpha-bar" aria-label="Filter movies by alphabet">
+                <span id="movieAlphaSlider" class="alpha-slider" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div id="collectionsGrid" class="collections-grid"></div>
+            <p id="movieEmpty" class="empty" hidden>No movies found for this letter.</p>
+          </section>
+
+          <!-- 6. Main Items Grid (Characters inside Anime, Manga Panels, Movie Scenes/Cuts, Others, Search) -->
+          <section id="gridSection" hidden>
+            <div class="sec-head">
+              <h2 id="gridTitle" class="sec-title">Library</h2>
+              <span id="count" class="sec-count"></span>
+            </div>
+            <div id="grid" class="grid"></div>
+            <p id="empty" class="empty" hidden>No items found. Try another search or tab.</p>
+          </section>
+
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="clips.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
