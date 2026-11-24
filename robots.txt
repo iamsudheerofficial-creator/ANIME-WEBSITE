@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anime-flowframes.pages.dev/sitemap.xml
