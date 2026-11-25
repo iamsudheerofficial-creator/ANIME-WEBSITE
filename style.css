@@ -940,3 +940,43 @@ html.home-view .bg-vignette { background: radial-gradient(ellipse at 22% 45%, rg
 #snow { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 0.9s ease; }
 html.home-view #snow { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { #snow { display: none; } }
+
+/* ============================================================
+   GALLERY STYLE (Anime / Movie / Others) — warm maroon, chips, tall cards
+   Scoped so the Home page is untouched.
+   ============================================================ */
+html:not(.home-view) .bg-vignette { background: linear-gradient(180deg, rgba(48, 16, 13, 0.86), rgba(18, 7, 7, 0.95)); }
+html:not(.home-view) .bg-glow { background: radial-gradient(circle at 50% -5%, rgba(170, 52, 40, 0.38), transparent 55%); }
+
+/* header: flat, no glass box */
+html:not(.home-view) .spotlight-card { background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 6px 4px 0; grid-template-columns: 96px 1fr; gap: 18px; margin-bottom: 14px; }
+html:not(.home-view) .spot-art { width: 96px; max-width: 96px; aspect-ratio: 1; border-radius: 22px; }
+html:not(.home-view) .spot-title { font-size: clamp(1.8rem, 3.2vw, 2.8rem); }
+html:not(.home-view) .spot-tags { display: none; }
+
+/* chips */
+html:not(.home-view) .sub-tabs, html:not(.home-view) .sort-tabs { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09); box-shadow: none; }
+html:not(.home-view) .sub-tab, html:not(.home-view) .sort-tab, html:not(.home-view) .alpha-btn { border-radius: 999px; font-weight: 650; }
+html:not(.home-view) .sub-slider, html:not(.home-view) .sort-slider, html:not(.home-view) .alpha-slider { background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none; }
+html:not(.home-view) .sub-tab.active, html:not(.home-view) .sort-tab.active, html:not(.home-view) .alpha-btn.active { color: #ffd45e; }
+html:not(.home-view) .sec-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px; }
+
+/* tall dark cards with the info on the bottom edge */
+html:not(.home-view) .card, html:not(.home-view) .collection-card, html:not(.home-view) .poster-frame {
+  background: linear-gradient(180deg, #2b1814 0%, #160b0a 100%); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 26px;
+  backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+html:not(.home-view) .card, html:not(.home-view) .collection-card { position: relative; overflow: hidden; }
+html:not(.home-view) .card:hover, html:not(.home-view) .collection-card:hover { border-color: rgba(255, 212, 94, 0.4); box-shadow: 0 22px 54px rgba(0, 0, 0, 0.6), 0 0 28px rgba(255, 170, 70, 0.22); }
+html:not(.home-view) .card .thumb, html:not(.home-view) .collection-card .col-thumb { aspect-ratio: 3 / 4; border-bottom: 0; }
+html:not(.home-view) .card .body, html:not(.home-view) .collection-card .col-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 54px 14px 14px; background: linear-gradient(transparent, rgba(12, 5, 5, 0.94) 58%); }
+html:not(.home-view) .card .tags { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.35s ease, opacity 0.35s ease; }
+html:not(.home-view) .card:hover .tags { max-height: 70px; opacity: 1; }
+html:not(.home-view) .poster-item { position: relative; }
+html:not(.home-view) .poster-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 14px 14px; text-align: left; border-radius: 0 0 26px 26px; background: linear-gradient(transparent, rgba(12, 5, 5, 0.92)); }
+
+/* yellow pill buttons */
+html:not(.home-view) .btn { border: 0; border-radius: 999px; color: #241503; background: linear-gradient(135deg, #ffe27a, #ffc42e); box-shadow: 0 0 0 1px rgba(255, 214, 94, 0.5), 0 8px 26px rgba(255, 196, 46, 0.32); }
+html:not(.home-view) .btn:hover { box-shadow: 0 0 0 1px rgba(255, 214, 94, 0.7), 0 10px 32px rgba(255, 196, 46, 0.5); }
+html:not(.home-view) .btn.disabled { color: var(--muted); background: rgba(255, 255, 255, 0.08); box-shadow: none; border: 1px solid rgba(255, 255, 255, 0.14); }
+html:not(.home-view) .grid, html:not(.home-view) .anime-poster-grid, html:not(.home-view) .collections-grid { gap: 14px; }
