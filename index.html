@@ -92,21 +92,19 @@
         <section id="welcomeSection" class="welcome-screen" hidden>
           <div class="home-grid">
             <div class="home-left" aria-hidden="true"></div>
-            <div class="home-right">
-              <p class="home-eyebrow"><span class="live-dot"></span>ANI - CLIPS · THE EDITOR'S ANIME VAULT</p>
-              <h1 class="home-title">Anime clips that <em>edit themselves</em> into your best work.</h1>
-              <p class="home-lead">Flow frames, isolated vocals, manga panels and movie cuts. Upscaled to 4K, cleaned of captions, sorted by anime and character, and ready in one tap.</p>
-              <div class="home-cta">
-                <button type="button" class="btn-glow" data-go="Anime">Explore Anime →</button>
-                <button type="button" class="btn-ghost" data-go="Movie">Movie Cuts</button>
+            <div class="hero">
+              <div class="hero-stage" id="heroStage">
+                <div class="hero-offset"></div>
+                <div class="hero-frame" id="heroFrame"></div>
+                <div class="hero-float f1" id="hf1"></div>
+                <div class="hero-float f2" id="hf2"></div>
               </div>
-              <div class="ring-stage" id="ringStage"><div class="ring-tilt"><div class="ring" id="ring"></div></div></div>
-              <ul class="why-row">
-                <li><b>4K</b><span>Upscaled &amp; sharp</span></li>
-                <li><b>No CC</b><span>Clean, caption-free</span></li>
-                <li><b>A–Z</b><span>Find any anime fast</span></li>
-                <li><b>Free</b><span>Tap, grab, edit</span></li>
-              </ul>
+              <div class="hero-text">
+                <p class="home-eyebrow"><svg class="spark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 0C12.8 7 17 11.2 24 12 17 12.8 12.8 17 12 24 11.2 17 7 12.8 0 12 7 11.2 11.2 7 12 0Z"/></svg>ANI - CLIPS · THE EDITOR'S ANIME VAULT</p>
+                <h1 class="home-title">Anime clips that <em>edit themselves</em> into your best work.</h1>
+                <button type="button" class="btn-bracket" data-go="Anime">Explore Anime</button>
+                <ol class="hero-dots" id="heroDots"></ol>
+              </div>
             </div>
           </div>
         </section>

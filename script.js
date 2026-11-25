@@ -946,47 +946,66 @@
     syncAlphaBar(movieAlphaSlider, movieAlphaButtons, state.movieLetter);
     fadeGrid(collectionsGrid, "movieGrid", renderMoviesGridOnly);
   });
-  // ---------- Home: 3D ring carousel, buttons, cursor light, card tilt ----------
-  function buildRing() {
-    var ring = $("ring"), stage = $("ringStage");
-    if (!ring || !stage) return;
-    var seen = {}, items = [];
-    function add(img, label) { if (img && !seen[img]) { seen[img] = 1; items.push({ img: img, label: label }); } }
-    (ANIME_META || []).forEach(function (m) { add(m.thumbnail, m.name); });
-    CLIPS.forEach(function (c) { add(c.thumbnail, c.title); });
-    MOVIES.forEach(function (m) { add(m.thumbnail, m.title); });
-    [["images/anime.jpg", "Anime"], ["images/hiruzen-sarutobi.jpg", "Hiruzen Sarutobi"], ["images/bg.jpg", "Naruto"], ["images/og-image.jpg", "Ani - Clips"]].forEach(function (f) { add(f[0], f[1]); });
-    items = items.slice(0, 6);
-    var n = items.length;
-    ring.style.setProperty("--k", (0.5 / Math.tan(Math.PI / n) + 0.14).toFixed(3));
-    items.forEach(function (it, i) {
-      var card = el("div", "ring-card");
-      card.style.setProperty("--a", (i * 360 / n) + "deg");
-      var im = document.createElement("img");
-      im.src = it.img; im.alt = it.label; im.loading = "lazy"; im.draggable = false;
-      card.appendChild(im);
-      card.appendChild(el("span", "ring-label", it.label));
-      ring.appendChild(card);
+  // ---------- Home hero: slides, floating cards with random bend/drift ----------
+  function buildHero() {
+    var frame = $("heroFrame"), dots = $("heroDots"), f1 = $("hf1"), f2 = $("hf2");
+    if (!frame || !dots) return;
+    var seen = {}, cand = [];
+    function add(src) { if (src && !seen[src]) { seen[src] = 1; cand.push(src); } }
+    (ANIME_META || []).forEach(function (m) { add(m.thumbnail); });
+    CLIPS.forEach(function (c) { add(c.thumbnail); });
+    MOVIES.forEach(function (m) { add(m.thumbnail); });
+    ["images/anime.jpg", "images/hiruzen-sarutobi.jpg", "images/bg.jpg"].forEach(add);
+    var loaded = {}, left = cand.length;
+    function done() { if (--left === 0) start(cand.filter(function (x) { return loaded[x]; }).slice(0, 4)); }
+    cand.forEach(function (src) {
+      var im = new Image();
+      im.onload = function () { loaded[src] = 1; done(); };
+      im.onerror = done;
+      im.src = src;
     });
-    stage.addEventListener("pointermove", function (e) {
-      var r = stage.getBoundingClientRect();
-      stage.style.setProperty("--mx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
-      stage.style.setProperty("--my", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
-    });
-    stage.addEventListener("pointerleave", function () { stage.style.setProperty("--mx", 0); stage.style.setProperty("--my", 0); });
+    function rnd(r) { return (Math.random() * 2 - 1) * r; }
+    function wander() {
+      [[frame, 10, 3, 4, 1.2], [f1, 26, 14, 16, 8], [f2, 26, 14, 16, 8]].forEach(function (a) {
+        var e = a[0], st = e.style;
+        st.setProperty("--tx", rnd(a[1]).toFixed(1) + "px"); st.setProperty("--ty", rnd(a[1]).toFixed(1) + "px");
+        st.setProperty("--rx", rnd(a[2]).toFixed(1) + "deg"); st.setProperty("--ry", rnd(a[3]).toFixed(1) + "deg");
+        st.setProperty("--rz", rnd(a[4]).toFixed(1) + "deg");
+      });
+    }
+    function start(list) {
+      var n = list.length; if (!n) return;
+      var imgs = [], idx = 0, timer = null;
+      list.forEach(function (src, k) {
+        var im = document.createElement("img"); im.src = src; im.alt = ""; im.draggable = false;
+        frame.appendChild(im); imgs.push(im);
+        var d = el("li", "", "0" + (k + 1)); d.addEventListener("click", function () { show(k); restart(); });
+        dots.appendChild(d);
+      });
+      function show(k) {
+        idx = k;
+        imgs.forEach(function (im, j) { im.classList.toggle("on", j === k); });
+        Array.prototype.forEach.call(dots.children, function (d, j) { d.classList.toggle("on", j === k); });
+        f1.style.backgroundImage = "url(" + list[(k + 1) % n] + ")";
+        f2.style.backgroundImage = "url(" + list[(k + 2) % n] + ")";
+      }
+      function restart() { clearInterval(timer); timer = setInterval(function () { show((idx + 1) % n); }, 5400); }
+      show(0); restart(); wander(); setInterval(wander, 3800);
+    }
   }
   welcomeSection.addEventListener("click", function (e) {
     var b = e.target.closest("[data-go]");
     if (b) goToSection(b.getAttribute("data-go"));
   });
-  buildRing();
+  buildHero();
 
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    var glow = el("div", "cursor-glow");
-    document.body.appendChild(glow);
+    var line = el("div", "cursor-line");
+    document.body.appendChild(line);
+    var tx = 0, ty = 0, x = 0, y = 0, ang = 0, len = 10, shown = false;
     document.addEventListener("pointermove", function (e) {
-      glow.style.opacity = "1";
-      glow.style.transform = "translate(" + e.clientX + "px," + e.clientY + "px)";
+      tx = e.clientX; ty = e.clientY;
+      if (!shown) { x = tx; y = ty; shown = true; line.style.opacity = "1"; }
       var t = e.target.closest && e.target.closest(".card, .poster-item, .collection-card");
       if (t) {
         var r = t.getBoundingClientRect();
@@ -994,7 +1013,16 @@
         t.style.setProperty("--rx", (((e.clientY - r.top) / r.height - 0.5) * -12).toFixed(2) + "deg");
       }
     });
-    document.addEventListener("pointerleave", function () { glow.style.opacity = "0"; });
+    document.addEventListener("pointerleave", function () { line.style.opacity = "0"; shown = false; });
+    (function loop() {
+      var dx = tx - x, dy = ty - y, sp = Math.sqrt(dx * dx + dy * dy);
+      x += dx * 0.3; y += dy * 0.3;
+      if (sp > 0.6) { var a = Math.atan2(dy, dx) * 180 / Math.PI; ang += (((a - ang + 540) % 360) - 180) * 0.25; }
+      len += ((8 + Math.min(sp * 1.6, 34)) - len) * 0.25;
+      line.style.width = len + "px";
+      line.style.transform = "translate(" + x + "px," + y + "px) rotate(" + ang + "deg) translateX(-100%)";
+      requestAnimationFrame(loop);
+    })();
   }
 
   render();
