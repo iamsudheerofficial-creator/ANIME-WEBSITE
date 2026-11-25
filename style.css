@@ -874,8 +874,8 @@ html.home-view::-webkit-scrollbar, html.home-view body::-webkit-scrollbar { disp
    ============================================================ */
 html.home-view .welcome-screen { display: block; height: auto; min-height: calc(100vh - 96px); min-height: calc(100dvh - 96px); }
 .home-grid { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 16px; align-items: start; min-height: inherit; }
-.hero { position: relative; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: clamp(30px, 5vh, 48px); padding-top: clamp(30px, 5.5vh, 70px); }
-.hero-text { position: relative; z-index: 4; max-width: 100%; order: 1; left: 13.5vw; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(14px, 2.4vh, 26px); text-shadow: 0 6px 30px rgba(0, 0, 0, 0.7); }
+.hero { position: relative; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: clamp(30px, 5vh, 48px); padding-top: clamp(50px, 8.3vh, 110px); }
+.hero-text { position: relative; z-index: 4; max-width: 41vw; order: 1; left: 13.5vw; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(14px, 2.4vh, 26px); text-shadow: 0 6px 30px rgba(0, 0, 0, 0.7); }
 .hero-text > * { animation: homeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .hero-text > *:nth-child(2) { animation-delay: 0.1s; } .hero-text > *:nth-child(3) { animation-delay: 0.2s; } .hero-text > *:nth-child(4) { animation-delay: 0.3s; }
 @keyframes homeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
@@ -909,7 +909,7 @@ html.home-view .welcome-screen { display: block; height: auto; min-height: calc(
 @media (max-width: 900px) {
   .home-grid { grid-template-columns: 1fr; } .home-left { display: none; }
   html.home-view .welcome-screen { min-height: 0; }
-  .hero { gap: 26px; } .hero-text { left: 0; }
+  .hero { gap: 26px; } .hero-text { left: 0; max-width: 100%; }
   .hero-stage { width: 94%; margin: 10px auto 18px; } .hero-text { max-width: 100%; }
 }
 
