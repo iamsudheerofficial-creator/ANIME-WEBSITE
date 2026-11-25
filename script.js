@@ -948,8 +948,8 @@
   });
   // ---------- Home hero: slides, floating cards with random bend/drift ----------
   function buildHero() {
-    var frame = $("heroFrame"), dots = $("heroDots"), f1 = $("hf1"), f2 = $("hf2");
-    if (!frame || !dots) return;
+    var frame = $("heroFrame");
+    if (!frame) return;
     var seen = {}, cand = [];
     function add(src) { if (src && !seen[src]) { seen[src] = 1; cand.push(src); } }
     (ANIME_META || []).forEach(function (m) { add(m.thumbnail); });
@@ -966,7 +966,7 @@
     });
     function rnd(r) { return (Math.random() * 2 - 1) * r; }
     function wander() {
-      [[frame, 10, 3, 4, 1.2], [f1, 26, 14, 16, 8], [f2, 26, 14, 16, 8]].forEach(function (a) {
+      [[frame, 10, 3, 4, 1.2]].forEach(function (a) {
         var e = a[0], st = e.style;
         st.setProperty("--tx", rnd(a[1]).toFixed(1) + "px"); st.setProperty("--ty", rnd(a[1]).toFixed(1) + "px");
         st.setProperty("--rx", rnd(a[2]).toFixed(1) + "deg"); st.setProperty("--ry", rnd(a[3]).toFixed(1) + "deg");
@@ -979,15 +979,10 @@
       list.forEach(function (src, k) {
         var im = document.createElement("img"); im.src = src; im.alt = ""; im.draggable = false;
         frame.appendChild(im); imgs.push(im);
-        var d = el("li", "", "0" + (k + 1)); d.addEventListener("click", function () { show(k); restart(); });
-        dots.appendChild(d);
       });
       function show(k) {
         idx = k;
         imgs.forEach(function (im, j) { im.classList.toggle("on", j === k); });
-        Array.prototype.forEach.call(dots.children, function (d, j) { d.classList.toggle("on", j === k); });
-        f1.style.backgroundImage = "url(" + list[(k + 1) % n] + ")";
-        f2.style.backgroundImage = "url(" + list[(k + 2) % n] + ")";
       }
       function restart() { clearInterval(timer); timer = setInterval(function () { show((idx + 1) % n); }, 5400); }
       show(0); restart(); wander(); setInterval(wander, 3800);
