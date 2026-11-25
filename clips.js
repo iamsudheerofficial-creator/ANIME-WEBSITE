@@ -17,7 +17,7 @@ const SITE = {
 //  ANIME POSTER METADATA (Optional: set poster image, popular: true, popularityRank)
 // ============================================================
 const ANIME_META = [
-  { name: "Naruto", thumbnail: "images/hiruzen-sarutobi.jpg", popular: true, popularityRank: 1 },
+  { name: "Naruto", thumbnail: "", popular: true, popularityRank: 1 },
   { name: "Jujutsu Kaisen", thumbnail: "", popular: true, popularityRank: 2 },
   { name: "Demon Slayer", thumbnail: "", popular: true, popularityRank: 3 },
   { name: "Chainsaw Man", thumbnail: "", popular: true, popularityRank: 4 },
