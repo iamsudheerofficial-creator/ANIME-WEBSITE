@@ -946,5 +946,56 @@
     syncAlphaBar(movieAlphaSlider, movieAlphaButtons, state.movieLetter);
     fadeGrid(collectionsGrid, "movieGrid", renderMoviesGridOnly);
   });
+  // ---------- Home: 3D ring carousel, buttons, cursor light, card tilt ----------
+  function buildRing() {
+    var ring = $("ring"), stage = $("ringStage");
+    if (!ring || !stage) return;
+    var seen = {}, items = [];
+    function add(img, label) { if (img && !seen[img]) { seen[img] = 1; items.push({ img: img, label: label }); } }
+    (ANIME_META || []).forEach(function (m) { add(m.thumbnail, m.name); });
+    CLIPS.forEach(function (c) { add(c.thumbnail, c.title); });
+    MOVIES.forEach(function (m) { add(m.thumbnail, m.title); });
+    [["images/anime.jpg", "Anime"], ["images/hiruzen-sarutobi.jpg", "Hiruzen Sarutobi"], ["images/bg.jpg", "Naruto"], ["images/og-image.jpg", "Ani - Clips"]].forEach(function (f) { add(f[0], f[1]); });
+    items = items.slice(0, 6);
+    var n = items.length;
+    ring.style.setProperty("--k", (0.5 / Math.tan(Math.PI / n) + 0.14).toFixed(3));
+    items.forEach(function (it, i) {
+      var card = el("div", "ring-card");
+      card.style.setProperty("--a", (i * 360 / n) + "deg");
+      var im = document.createElement("img");
+      im.src = it.img; im.alt = it.label; im.loading = "lazy"; im.draggable = false;
+      card.appendChild(im);
+      card.appendChild(el("span", "ring-label", it.label));
+      ring.appendChild(card);
+    });
+    stage.addEventListener("pointermove", function (e) {
+      var r = stage.getBoundingClientRect();
+      stage.style.setProperty("--mx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
+      stage.style.setProperty("--my", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
+    });
+    stage.addEventListener("pointerleave", function () { stage.style.setProperty("--mx", 0); stage.style.setProperty("--my", 0); });
+  }
+  welcomeSection.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-go]");
+    if (b) goToSection(b.getAttribute("data-go"));
+  });
+  buildRing();
+
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    var glow = el("div", "cursor-glow");
+    document.body.appendChild(glow);
+    document.addEventListener("pointermove", function (e) {
+      glow.style.opacity = "1";
+      glow.style.transform = "translate(" + e.clientX + "px," + e.clientY + "px)";
+      var t = e.target.closest && e.target.closest(".card, .poster-item, .collection-card");
+      if (t) {
+        var r = t.getBoundingClientRect();
+        t.style.setProperty("--ry", (((e.clientX - r.left) / r.width - 0.5) * 12).toFixed(2) + "deg");
+        t.style.setProperty("--rx", (((e.clientY - r.top) / r.height - 0.5) * -12).toFixed(2) + "deg");
+      }
+    });
+    document.addEventListener("pointerleave", function () { glow.style.opacity = "0"; });
+  }
+
   render();
 })();
