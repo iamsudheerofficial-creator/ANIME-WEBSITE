@@ -81,7 +81,7 @@
   var animeAlphaButtons = {};
   var movieSortButtons = {};
   var movieAlphaButtons = {};
-  var fadeTimers = { main: null, sub: null };
+  var fadeTimers = { main: null, sub: null, animeGrid: null, movieGrid: null };
 
   $("siteName").textContent = SITE.name;
 
@@ -178,6 +178,11 @@
 
   function fadeMain(updateFn) { runFade(stageBody, "main", updateFn); }
   function fadeSub(updateFn) { runFade(subStage, "sub", updateFn); }
+  // Fades only a results grid (used by A-Z letters and Sort tabs) so the controls stay still
+  function fadeGrid(gridEl, key, updateFn) {
+    gridEl.classList.add("stage-body");
+    runFade(gridEl, key, updateFn);
+  }
 
   function initTopNav() {
     MAIN_SECTIONS.forEach(function (sec) {
@@ -336,7 +341,6 @@
           list.push(map[key]);
         }
         map[key].count += 1;
-        if (!map[key].thumbnail && c.thumbnail) map[key].thumbnail = c.thumbnail;
         if (c.popular) map[key].popular = true;
       }
     });
@@ -480,6 +484,7 @@
 
   function updateSpotlight(cfg) {
     spotlightSection.hidden = false;
+    spotArt.classList.toggle("wiggle", Boolean(cfg.wiggle));
     addThumb(spotArt, cfg.thumbnail, cfg.title, "✦");
     spotEyebrow.textContent = cfg.eyebrow;
     spotTitle.textContent = cfg.title;
@@ -585,6 +590,7 @@
   function render() {
     var searching = state.query.length > 0;
     var allItems = getAllItems();
+    document.documentElement.classList.toggle("home-view", state.section === "Home" && !searching);
 
     welcomeSection.hidden = true;
     crumbBar.hidden = true;
@@ -612,7 +618,7 @@
         eyebrow: "SEARCH RESULTS",
         title: 'Results for "' + searchEl.value.trim() + '"',
         subtitle: "Searching across Anime Flow Frames, Vocals, Manga Panels, Movies, and Others.",
-        thumbnail: results[0] ? results[0].thumbnail : "images/hiruzen-sarutobi.jpg",
+        thumbnail: (results[0] && results[0].thumbnail) || "images/anime.jpg",
         tags: ["Anime", "Movie", "Others"],
         countText: results.length + (results.length === 1 ? " match" : " matches"),
         ctaLabel: "Clear Search",
@@ -682,7 +688,7 @@
           subtitle: state.animeSub === "Vocals"
             ? "Clean character dialogue & isolated vocal packs from " + state.animeSeries + "."
             : "All " + state.animeSeries + " character flow frames ready for your edits.",
-          thumbnail: (chars[0] && chars[0].thumbnail) || "images/hiruzen-sarutobi.jpg",
+          thumbnail: (allSeries.filter(function (x) { return x.name === state.animeSeries; })[0] || {}).thumbnail || "images/anime.jpg",
           tags: [state.animeSeries, state.animeSub, "Clean"],
           countText: shownChars.length + (shownChars.length === 1 ? " character" : " characters"),
           ctaLabel: "Browse Characters ↓"
@@ -705,7 +711,8 @@
           subtitle: state.animeSub === "Vocals"
             ? "Pick any anime below to open clean character vocals inside."
             : "Pick any anime below to open all character flow frames inside.",
-          thumbnail: "images/hiruzen-sarutobi.jpg",
+          thumbnail: "images/anime.jpg",
+          wiggle: true,
           tags: ["4K Clean", "Flow Frames", "Vocals", "No CC"],
           countText: allSeries.length + (allSeries.length === 1 ? " anime" : " animes"),
           hideSort: true,
@@ -726,7 +733,7 @@
         eyebrow: "ANIME LIBRARY",
         title: "Manga Panels",
         subtitle: "Clean, upscaled, and transparent manga panels ready for edits.",
-        thumbnail: (inSub[0] && inSub[0].thumbnail) || "images/hiruzen-sarutobi.jpg",
+        thumbnail: (inSub[0] && inSub[0].thumbnail) || "images/anime.jpg",
         tags: ["4K Upscaled", "Clean", "Transparent PNG"],
         countText: shownManga.length + (shownManga.length === 1 ? " pack" : " packs"),
         ctaLabel: "Browse Panels ↓"
@@ -922,22 +929,22 @@
   initSortBar(animeSortBar, animeSortButtons, function () { return state.animeSort; }, function (id) {
     state.animeSort = id;
     syncSortBar(sortSlider, animeSortButtons, state.animeSort);
-    renderAllAnimeGridOnly();
+    fadeGrid(allAnimeGrid, "animeGrid", renderAllAnimeGridOnly);
   });
   initAlphaBar(alphaBar, animeAlphaButtons, function () { return state.animeLetter; }, function (key) {
     state.animeLetter = key;
     syncAlphaBar(alphaSlider, animeAlphaButtons, state.animeLetter);
-    renderAllAnimeGridOnly();
+    fadeGrid(allAnimeGrid, "animeGrid", renderAllAnimeGridOnly);
   });
   initSortBar(movieSortBar, movieSortButtons, function () { return state.movieSort; }, function (id) {
     state.movieSort = id;
     syncSortBar(movieSortSlider, movieSortButtons, state.movieSort);
-    renderMoviesGridOnly();
+    fadeGrid(collectionsGrid, "movieGrid", renderMoviesGridOnly);
   });
   initAlphaBar(movieAlphaBar, movieAlphaButtons, function () { return state.movieLetter; }, function (key) {
     state.movieLetter = key;
     syncAlphaBar(movieAlphaSlider, movieAlphaButtons, state.movieLetter);
-    renderMoviesGridOnly();
+    fadeGrid(collectionsGrid, "movieGrid", renderMoviesGridOnly);
   });
   render();
 })();

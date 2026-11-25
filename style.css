@@ -275,6 +275,10 @@ body {
   pointer-events: none;
 }
 
+/* Home screen: no scrollbar (fits exactly in the window) */
+html.home-view, html.home-view body { overflow: hidden; height: 100%; }
+html.home-view .welcome-screen { min-height: 0; height: calc(100vh - 140px); height: calc(100dvh - 140px); }
+
 /* ============================================================
    CLEAN HOME WELCOME SCREEN
    ============================================================ */
@@ -403,6 +407,21 @@ body {
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .spot-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Slow, gentle wiggle on the Anime spotlight image */
+.spot-art.wiggle img {
+  object-position: center 42%;
+  transform-origin: center;
+  animation: spotWiggle 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes spotWiggle {
+  0%   { transform: scale(1.10) translate(0, 0) rotate(0deg); }
+  25%  { transform: scale(1.11) translate(-1.2%, 0.8%) rotate(-0.6deg); }
+  50%  { transform: scale(1.12) translate(1%, -1%) rotate(0.5deg); }
+  75%  { transform: scale(1.11) translate(-0.8%, -0.6%) rotate(-0.4deg); }
+  100% { transform: scale(1.10) translate(1.2%, 0.8%) rotate(0.6deg); }
+}
 .spot-info { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 10px; min-width: 0; }
 .spot-eyebrow { display: flex; align-items: center; gap: 9px; font-size: 0.74rem; font-weight: 750; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; }
 .eq-bars { display: inline-flex; align-items: flex-end; gap: 2.5px; height: 13px; }
@@ -833,6 +852,7 @@ body {
 }
 
 @media (max-width: 780px) {
+  html.home-view .welcome-screen { height: calc(100vh - 200px); height: calc(100dvh - 200px); }
   .navbar-inner { flex-direction: column; align-items: stretch; padding: 10px 14px; gap: 10px; }
   .nav-left { justify-content: space-between; flex-wrap: wrap; }
   .nav-divider { display: none; }
@@ -845,6 +865,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg-image, .eq-bars i, .blink-star { animation: none !important; }
+  .bg-image, .eq-bars i, .blink-star, .spot-art.wiggle img { animation: none !important; }
   .stage-body, .nav-slider, .sub-slider, .sort-slider, .alpha-slider, .card, .collection-card, .poster-item, .btn, .top-link { transition: none; }
 }
