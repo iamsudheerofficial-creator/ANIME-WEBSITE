@@ -932,6 +932,11 @@ html.home-view .bg-sharp { opacity: 1; filter: saturate(1.45) brightness(1.12) c
 @media (max-width: 900px) { .bg-sharp { -webkit-mask-image: none; mask-image: none; } }
 
 /* Home: warm glow behind Naruto, darker right side for the text */
-html.home-view .bg-glow { background: radial-gradient(circle at 18% 44%, rgba(255, 170, 80, 0.34), transparent 46%), radial-gradient(circle at 12% 18%, rgba(255, 214, 140, 0.16), transparent 34%), radial-gradient(circle at 88% 22%, rgba(108, 138, 255, 0.1), transparent 42%); }
+html.home-view .bg-glow { background: radial-gradient(circle at 18% 44%, rgba(255, 170, 80, 0.34), transparent 46%), radial-gradient(circle at 12% 18%, rgba(255, 214, 140, 0.16), transparent 34%), radial-gradient(circle at 80% 8%, rgba(200, 210, 255, 0.2), transparent 44%); }
 html.home-view .bg-vignette { background: radial-gradient(ellipse at 22% 45%, rgba(10, 12, 16, 0) 0%, rgba(6, 8, 12, 0.6) 85%); }
 @media (max-width: 900px) { .hero { position: relative; } }
+
+/* Home: soft bokeh snow */
+#snow { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 0.9s ease; }
+html.home-view #snow { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #snow { display: none; } }

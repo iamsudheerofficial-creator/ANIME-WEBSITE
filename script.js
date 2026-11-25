@@ -1020,5 +1020,66 @@
     })();
   }
 
+  // ---------- Home: soft bokeh snow (big blurry glows + tiny sharp flakes) ----------
+  (function snowInit() {
+    var cv = $("snow");
+    if (!cv || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var ctx = cv.getContext("2d"), W = 0, H = 0, dpr = 1, flakes = [], glows = [];
+    var mx = -999, my = -999, last = 0, wasHome = true;
+
+    function sprite(size, stops) {
+      var c = document.createElement("canvas"); c.width = c.height = size;
+      var g = c.getContext("2d"), r = size / 2, gr = g.createRadialGradient(r, r, 0, r, r, r);
+      stops.forEach(function (s) { gr.addColorStop(s[0], s[1]); });
+      g.fillStyle = gr; g.fillRect(0, 0, size, size);
+      return c;
+    }
+    var glowSpr = sprite(128, [[0, "rgba(236,232,255,0.55)"], [0.72, "rgba(236,232,255,0.5)"], [0.9, "rgba(255,255,255,0.7)"], [1, "rgba(255,255,255,0)"]]);
+    var flakeSpr = sprite(32, [[0, "rgba(255,255,255,1)"], [0.35, "rgba(255,255,255,0.85)"], [1, "rgba(255,255,255,0)"]]);
+
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var area = W * H;
+      var nf = Math.max(60, Math.min(220, Math.round(area / 9000)));
+      var ng = Math.max(8, Math.min(26, Math.round(area / 90000)));
+      flakes = []; glows = [];
+      for (var i = 0; i < nf; i++) flakes.push({ x: rnd(0, W), y: rnd(0, H), r: rnd(1.2, 4.2), vy: rnd(18, 60), ph: rnd(0, 6.28), sw: rnd(8, 26), a: rnd(0.5, 0.95), tw: rnd(0.6, 2) });
+      for (var j = 0; j < ng; j++) glows.push({ x: rnd(0, W), y: rnd(0, H), r: rnd(16, 58), vy: rnd(6, 22), ph: rnd(0, 6.28), sw: rnd(10, 40), a: rnd(0.07, 0.22) });
+    }
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", function (e) { mx = e.clientX; my = e.clientY; });
+    resize();
+
+    function frame(t) {
+      requestAnimationFrame(frame);
+      var home = document.documentElement.classList.contains("home-view");
+      if (!home) { if (wasHome) ctx.clearRect(0, 0, W, H); wasHome = false; last = t; return; }
+      wasHome = true;
+      var dt = Math.min((t - last) / 1000 || 0.016, 0.05); last = t;
+      var time = t / 1000;
+      ctx.clearRect(0, 0, W, H);
+      glows.forEach(function (g) {
+        g.y += g.vy * dt; if (g.y - g.r > H) { g.y = -g.r; g.x = rnd(0, W); }
+        var x = g.x + Math.sin(time * 0.25 + g.ph) * g.sw;
+        ctx.globalAlpha = g.a; ctx.drawImage(glowSpr, x - g.r, g.y - g.r, g.r * 2, g.r * 2);
+      });
+      flakes.forEach(function (f) {
+        f.y += f.vy * dt;
+        if (f.y - f.r > H) { f.y = -f.r; f.x = rnd(0, W); }
+        var x = f.x + Math.sin(time * 0.7 + f.ph) * f.sw;
+        var dx = x - mx, dy = f.y - my, d2 = dx * dx + dy * dy;
+        if (d2 < 8100) { var d = Math.sqrt(d2) || 1, push = (90 - d) / 90 * 26; f.x += dx / d * push * dt * 6; f.y += dy / d * push * dt * 3; }
+        ctx.globalAlpha = f.a * (0.75 + 0.25 * Math.sin(time * f.tw + f.ph));
+        ctx.drawImage(flakeSpr, x - f.r * 2, f.y - f.r * 2, f.r * 4, f.r * 4);
+      });
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(frame);
+  })();
+
   render();
 })();
