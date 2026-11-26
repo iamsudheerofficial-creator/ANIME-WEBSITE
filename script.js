@@ -61,7 +61,12 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
   var emptyEl = $("empty");
 
   var MAIN_SECTIONS = ["Home", "Anime", "Movie", "Others"];
-  var ANIME_SUBS = ["Flow Frames", "Vocals", "Manga Panels"];
+  var COMBO = "Flowframes-Vocals-Manga";
+  var COMBO_SUBS = ["Flow Frames", "Vocals", "Manga Panels"];
+  var ANIME_SUBS = [COMBO, "Intro for Edit"];
+  function animeSubMatch(c, sub) {
+    return c.section === "Anime" && (sub === COMBO ? COMBO_SUBS.indexOf(c.sub) !== -1 : c.sub === sub);
+  }
   var MOVIE_SUBS = ["All", "Scenes", "Cuts"];
   var SORT_OPTIONS = [
     { id: "az", label: "Sort A-Z" },
@@ -72,7 +77,7 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
 
   var state = {
     section: "Home",
-    animeSub: "Flow Frames",
+    animeSub: COMBO,
     animeSeries: null,
     animeChar: null,
     animeSort: "az",
@@ -339,20 +344,21 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
     var map = {};
     var list = [];
     CLIPS.forEach(function (c) {
-      if (c.section === "Anime" && c.sub === subName && c.series) {
+      if (animeSubMatch(c, subName) && c.series) {
         var key = c.series.toLowerCase();
         if (!map[key]) {
           var meta = metaMap[key] || {};
           map[key] = {
             name: c.series,
             count: 0,
+            titles: {},
             thumbnail: meta.thumbnail || "",
             popular: Boolean(meta.popular),
             popularityRank: typeof meta.popularityRank === "number" ? meta.popularityRank : 999
           };
           list.push(map[key]);
         }
-        map[key].count += 1;
+        if (!map[key].titles[c.title]) { map[key].titles[c.title] = 1; map[key].count += 1; }
         if (c.popular) map[key].popular = true;
       }
     });
@@ -364,6 +370,54 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
       if (MOVIES[i].id === id) return MOVIES[i];
     }
     return null;
+  }
+
+  function animeCharacters(series, pool) {
+    var map = {}, list = [];
+    pool.forEach(function (c) {
+      if (c.series !== series) return;
+      var o = map[c.title];
+      if (!o) { o = map[c.title] = { title: c.title, section: "Anime", series: series, quality: c.quality, thumbnail: c.thumbnail || "", tags: c.tags || [], link: "" }; list.push(o); }
+      if (!o.thumbnail && c.thumbnail) o.thumbnail = c.thumbnail;
+    });
+    return list;
+  }
+  function copyText(t) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(fallback);
+    else fallback();
+  }
+  function buildLinkPanel(pool) {
+    var panel = el("div", "link-panel");
+    COMBO_SUBS.forEach(function (sub) {
+      var clip = pool.filter(function (c) { return c.sub === sub; })[0];
+      var url = clip && isRealLink(clip.link) ? clip.link : "";
+      var row = el("div", "lk-row");
+      row.appendChild(el("span", "lk-name", sub));
+      if (url) {
+        var open = el("a", "lk-btn open", "Open link →");
+        open.href = url; open.target = "_blank"; open.rel = "noopener noreferrer";
+        var cp = el("button", "lk-btn copy", "Copy link");
+        cp.type = "button";
+        cp.addEventListener("click", function () {
+          copyText(url);
+          cp.textContent = "Copied ✓";
+          setTimeout(function () { cp.textContent = "Copy link"; }, 1600);
+        });
+        row.appendChild(open);
+        row.appendChild(cp);
+      } else {
+        row.appendChild(el("span", "lk-soon", "Soon"));
+      }
+      panel.appendChild(row);
+    });
+    return panel;
   }
 
   function buildCard(item) {
@@ -662,7 +716,7 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
     // 2. ANIME (Spotlight Box with Flow Frames | Vocals | Manga Panels inside .spot-dock)
     // ========================================================
     if (state.section === "Anime") {
-      var inSub = CLIPS.filter(function (c) { return c.section === "Anime" && c.sub === state.animeSub; });
+      var inSub = CLIPS.filter(function (c) { return animeSubMatch(c, state.animeSub); });
       var allSeries = getAnimeCollections(state.animeSub);
 
       var onSelectAnimeSub = function (subName) {
@@ -683,7 +737,7 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
         crumbBar.hidden = false;
         backBtn.hidden = false;
         crumbPath.hidden = false;
-        crumbPath.innerHTML = "Anime &nbsp;/&nbsp; " + state.animeSub + " &nbsp;/&nbsp; <strong>" + state.animeSeries + "</strong>";
+        crumbPath.innerHTML = "Anime &nbsp;/&nbsp; <strong>" + state.animeSeries + "</strong>";
         backBtn.onclick = function () {
           state.animeSeries = null;
           state.quality = "All";
@@ -693,38 +747,35 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
         if (state.animeChar) {
           crumbPath.innerHTML = "Anime &nbsp;/&nbsp; " + state.animeSeries + " &nbsp;/&nbsp; <strong>" + state.animeChar + "</strong>";
           backBtn.onclick = function () { state.animeChar = null; fadeMain(function () { render(); }); };
-          var files = CLIPS.filter(function (c) { return c.section === "Anime" && c.series === state.animeSeries && c.title === state.animeChar; });
-          renderQualityPills(files);
-          var lead = files[0] || {};
+          var pool = CLIPS.filter(function (c) { return c.section === "Anime" && c.series === state.animeSeries && c.title === state.animeChar; });
+          var lead = pool.filter(function (c) { return c.thumbnail; })[0] || pool[0] || {};
           updateSpotlight({
             eyebrow: "ANIME • " + state.animeSeries.toUpperCase(),
             title: state.animeChar,
-            subtitle: "Everything available for " + state.animeChar + ". Pick what you need.",
+            subtitle: "Flow Frames, Vocals and Manga for " + state.animeChar + ".",
             thumbnail: lead.thumbnail || "images/anime.jpg",
-            tags: [state.animeSeries].concat(lead.tags || []),
-            countText: files.length + (files.length === 1 ? " file" : " files"),
-            ctaLabel: "Browse Files ↓"
+            tags: [state.animeSeries],
+            countText: "3 types",
+            ctaLabel: "Get Files ↓"
           });
           gridSection.hidden = false;
           gridTitle.textContent = state.animeChar + " - all files";
-          countEl.textContent = files.length + (files.length === 1 ? " file" : " files");
+          countEl.textContent = "";
           grid.classList.add("char-detail");
-          files.forEach(function (c) { grid.appendChild(buildCard(c)); });
-          emptyEl.hidden = files.length > 0;
+          grid.appendChild(buildLinkPanel(pool));
+          emptyEl.hidden = true;
           return;
         }
 
-        var chars = inSub.filter(function (c) { return c.series === state.animeSeries; });
+        var chars = animeCharacters(state.animeSeries, inSub);
         renderQualityPills(chars);
         var shownChars = chars.filter(matchesSearch);
         if (state.sort === "az") shownChars.sort(function (a, b) { return a.title.localeCompare(b.title); });
 
         updateSpotlight({
-          eyebrow: "ANIME • " + state.animeSub.toUpperCase(),
+          eyebrow: "ANIME • " + state.animeSeries.toUpperCase(),
           title: state.animeSeries + " Characters",
-          subtitle: state.animeSub === "Vocals"
-            ? "Clean character dialogue & isolated vocal packs from " + state.animeSeries + "."
-            : "All " + state.animeSeries + " character flow frames ready for your edits.",
+          subtitle: "All " + state.animeSeries + " characters. Open one to get its Flow Frames, Vocals and Manga.",
           thumbnail: (allSeries.filter(function (x) { return x.name === state.animeSeries; })[0] || {}).thumbnail || "images/anime.jpg",
           tags: [state.animeSeries, state.animeSub, "Clean"],
           countText: shownChars.length + (shownChars.length === 1 ? " character" : " characters"),
@@ -733,11 +784,13 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
         ensureDockTabs("anime", ANIME_SUBS, state.animeSub, onSelectAnimeSub);
 
         gridSection.hidden = false;
-        gridTitle.textContent = "All " + state.animeSeries + " Characters (" + state.animeSub + ")";
+        gridTitle.textContent = "All " + state.animeSeries + " Characters";
         countEl.textContent = shownChars.length + (shownChars.length === 1 ? " character" : " characters");
         grid.classList.add("in-series");
         shownChars.forEach(function (c) {
           var card = buildCard(c);
+          var catTag = card.querySelector(".cat");
+          if (catTag) catTag.remove();
           card.classList.add("clickable");
           card.tabIndex = 0;
           card.setAttribute("role", "button");
@@ -751,13 +804,11 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
       }
 
       // Root of Anime: Spotlight Box + Flow Frames / Vocals / Manga Panels inside .spot-dock
-      if (state.animeSub === "Flow Frames" || state.animeSub === "Vocals") {
+      if (true) {
         updateSpotlight({
           eyebrow: "ANIME LIBRARY",
-          title: state.animeSub === "Vocals" ? "Anime - vocals" : "Anime - ff",
-          subtitle: state.animeSub === "Vocals"
-            ? "Pick any anime below to open clean character vocals inside."
-            : "Pick any anime below to open all character flow frames inside.",
+          title: state.animeSub === COMBO ? "Anime - Flowframes-Vocals-Manga" : "Anime - Intro for Edit",
+          subtitle: state.animeSub === COMBO ? "Pick any anime below. Every character has Flow Frames, Vocals and Manga inside." : "Anime intros made for edits. Pick any anime below.",
           thumbnail: "images/anime.jpg",
           wiggle: true,
           tags: ["4K Clean", "Flow Frames", "Vocals", "No CC"],
@@ -1192,7 +1243,7 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
   }
   function staggerIn() {
     if (state.section === "Home" && !state.query) return;
-    var nodes = document.querySelectorAll("#stageBody .spotlight-card, #stageBody .cat-block-head, #stageBody .card, #stageBody .poster-item, #stageBody .collection-card");
+    var nodes = document.querySelectorAll("#stageBody .spotlight-card, #stageBody .cat-block-head, #stageBody .card, #stageBody .lk-row, #stageBody .poster-item, #stageBody .collection-card");
     var n = 0;
     Array.prototype.forEach.call(nodes, function (node) {
       if (node.offsetParent === null) return;
@@ -1207,7 +1258,8 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
     if (!state.animeSeries) state.animeChar = null;
     grid.classList.remove("in-series", "char-detail");
     renderBase();
-    if (state.section === "Anime" && state.animeSeries) dockTabsWrap.hidden = true;
+    if (state.section === "Anime" && state.animeSeries) { dockTabsWrap.hidden = true; qualityFilters.textContent = ""; }
+    if (state.section === "Anime" && !state.animeSeries) animeEmpty.textContent = state.animeSub === COMBO ? "No anime found for this letter." : "Intro for Edit is coming soon.";
     placeTools();
     staggerIn();
   };
