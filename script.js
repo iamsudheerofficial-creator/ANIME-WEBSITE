@@ -173,7 +173,7 @@
         targetEl.classList.remove("prep-in");
       });
       fadeTimers[timerKey] = null;
-    }, 250);
+    }, 300);
   }
 
   function fadeMain(updateFn) { runFade(stageBody, "main", updateFn); }
@@ -591,6 +591,7 @@
     var searching = state.query.length > 0;
     var allItems = getAllItems();
     document.documentElement.classList.toggle("home-view", state.section === "Home" && !searching);
+    updateBackground(searching);
 
     welcomeSection.hidden = true;
     crumbBar.hidden = true;
@@ -1080,6 +1081,36 @@
     }
     requestAnimationFrame(frame);
   })();
+
+  // ---------- Per-page backgrounds (smooth crossfade). Files: images/<name>-background.jpg ----------
+  var bgLayers = [$("bgA"), $("bgB")], bgActive = -1, bgUrl = null, bgToken = 0;
+  function bgSlug(v) { return String(v).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function setPageBg(url) {
+    if (url === bgUrl) return;
+    bgUrl = url;
+    var token = ++bgToken;
+    function hideAll() { bgLayers.forEach(function (l) { l.classList.remove("on"); }); bgActive = -1; }
+    if (!url) { hideAll(); return; }
+    var im = new Image();
+    im.onload = function () {
+      if (token !== bgToken) return;
+      var next = bgActive === 0 ? 1 : 0;
+      bgLayers[next].style.backgroundImage = "url(" + url + ")";
+      bgLayers[next].classList.add("on");
+      if (bgActive > -1) bgLayers[bgActive].classList.remove("on");
+      bgActive = next;
+    };
+    im.onerror = function () { if (token === bgToken) hideAll(); };
+    im.src = url;
+  }
+  function updateBackground(searching) {
+    if (searching) return;
+    var url = "";
+    if (state.section === "Anime") url = "images/" + (state.animeSeries ? bgSlug(state.animeSeries) : "anime") + "-background.jpg";
+    else if (state.section === "Movie") url = "images/movie-background.jpg";
+    else if (state.section === "Others") url = "images/others-background.jpg";
+    setPageBg(url);
+  }
 
   render();
 })();

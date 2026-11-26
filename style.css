@@ -260,10 +260,11 @@ body {
 .stage-body {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: opacity, transform;
 }
 .stage-body.fading-out {
+  transition: opacity 0.3s ease, transform 0.3s ease;
   opacity: 0;
   transform: translateY(16px);
   pointer-events: none;
@@ -925,15 +926,13 @@ html.home-view .welcome-screen { display: block; height: auto; min-height: calc(
 
 /* Home background: Naruto sharp on the left, softly blurred on the right */
 html.home-view .welcome-screen { position: relative; }
-.bg-image { transition: filter 0.6s ease; }
+.bg-image { transition: filter 0.8s ease; }
 html.home-view .bg-image { filter: blur(4px) saturate(1.25) brightness(0.84); }
-.bg-sharp { opacity: 0; filter: saturate(1.25) brightness(0.92); transition: opacity 0.6s ease; -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 60%); mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 60%); }
+.bg-sharp { opacity: 0; filter: saturate(1.25) brightness(0.92); transition: opacity 0.8s ease; -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 60%); mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 60%); }
 html.home-view .bg-sharp { opacity: 1; filter: saturate(1.45) brightness(1.12) contrast(1.06); }
 @media (max-width: 900px) { .bg-sharp { -webkit-mask-image: none; mask-image: none; } }
 
 /* Home: warm glow behind Naruto, darker right side for the text */
-html.home-view .bg-glow { background: radial-gradient(circle at 18% 44%, rgba(255, 170, 80, 0.34), transparent 46%), radial-gradient(circle at 12% 18%, rgba(255, 214, 140, 0.16), transparent 34%), radial-gradient(circle at 80% 8%, rgba(200, 210, 255, 0.2), transparent 44%); }
-html.home-view .bg-vignette { background: radial-gradient(ellipse at 22% 45%, rgba(10, 12, 16, 0) 0%, rgba(6, 8, 12, 0.6) 85%); }
 @media (max-width: 900px) { .hero { position: relative; } }
 
 /* Home: soft bokeh snow */
@@ -945,8 +944,6 @@ html.home-view #snow { opacity: 1; }
    GALLERY STYLE (Anime / Movie / Others) — warm maroon, chips, tall cards
    Scoped so the Home page is untouched.
    ============================================================ */
-html:not(.home-view) .bg-vignette { background: linear-gradient(180deg, rgba(48, 16, 13, 0.86), rgba(18, 7, 7, 0.95)); }
-html:not(.home-view) .bg-glow { background: radial-gradient(circle at 50% -5%, rgba(170, 52, 40, 0.38), transparent 55%); }
 
 /* header: flat, no glass box */
 html:not(.home-view) .spotlight-card { background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 6px 4px 0; grid-template-columns: 96px 1fr; gap: 18px; margin-bottom: 14px; }
@@ -963,20 +960,31 @@ html:not(.home-view) .sec-title { font-size: 1.5rem; font-weight: 800; letter-sp
 
 /* tall dark cards with the info on the bottom edge */
 html:not(.home-view) .card, html:not(.home-view) .collection-card, html:not(.home-view) .poster-frame {
-  background: linear-gradient(180deg, #2b1814 0%, #160b0a 100%); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 26px;
-  backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 26px;
+  backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 html:not(.home-view) .card, html:not(.home-view) .collection-card { position: relative; overflow: hidden; }
-html:not(.home-view) .card:hover, html:not(.home-view) .collection-card:hover { border-color: rgba(255, 212, 94, 0.4); box-shadow: 0 22px 54px rgba(0, 0, 0, 0.6), 0 0 28px rgba(255, 170, 70, 0.22); }
+html:not(.home-view) .card:hover, html:not(.home-view) .collection-card:hover { border-color: rgba(255, 255, 255, 0.5); box-shadow: 0 22px 54px rgba(0, 0, 0, 0.42), 0 0 32px rgba(255, 224, 160, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
 html:not(.home-view) .card .thumb, html:not(.home-view) .collection-card .col-thumb { aspect-ratio: 3 / 4; border-bottom: 0; }
-html:not(.home-view) .card .body, html:not(.home-view) .collection-card .col-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 54px 14px 14px; background: linear-gradient(transparent, rgba(12, 5, 5, 0.94) 58%); }
+html:not(.home-view) .card .body, html:not(.home-view) .collection-card .col-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 54px 14px 14px; background: linear-gradient(transparent, rgba(8, 10, 14, 0.94) 58%); }
 html:not(.home-view) .card .tags { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.35s ease, opacity 0.35s ease; }
 html:not(.home-view) .card:hover .tags { max-height: 70px; opacity: 1; }
 html:not(.home-view) .poster-item { position: relative; }
-html:not(.home-view) .poster-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 14px 14px; text-align: left; border-radius: 0 0 26px 26px; background: linear-gradient(transparent, rgba(12, 5, 5, 0.92)); }
+html:not(.home-view) .poster-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 14px 14px; text-align: left; border-radius: 0 0 26px 26px; background: linear-gradient(transparent, rgba(8, 10, 14, 0.92)); }
 
 /* yellow pill buttons */
 html:not(.home-view) .btn { border: 0; border-radius: 999px; color: #241503; background: linear-gradient(135deg, #ffe27a, #ffc42e); box-shadow: 0 0 0 1px rgba(255, 214, 94, 0.5), 0 8px 26px rgba(255, 196, 46, 0.32); }
 html:not(.home-view) .btn:hover { box-shadow: 0 0 0 1px rgba(255, 214, 94, 0.7), 0 10px 32px rgba(255, 196, 46, 0.5); }
 html:not(.home-view) .btn.disabled { color: var(--muted); background: rgba(255, 255, 255, 0.08); box-shadow: none; border: 1px solid rgba(255, 255, 255, 0.14); }
 html:not(.home-view) .grid, html:not(.home-view) .anime-poster-grid, html:not(.home-view) .collections-grid { gap: 14px; }
+
+/* Smooth background crossfades: home overlays + per-page images */
+.bg-glow, .bg-vignette, .bg-glow-home, .bg-vignette-home { transition: opacity 0.8s ease; }
+.bg-glow-home, .bg-vignette-home { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.bg-glow-home { background: radial-gradient(circle at 18% 44%, rgba(255, 170, 80, 0.34), transparent 46%), radial-gradient(circle at 12% 18%, rgba(255, 214, 140, 0.16), transparent 34%), radial-gradient(circle at 80% 8%, rgba(200, 210, 255, 0.2), transparent 44%); }
+.bg-vignette-home { background: radial-gradient(ellipse at 22% 45%, rgba(10, 12, 16, 0) 0%, rgba(6, 8, 12, 0.6) 85%); }
+html.home-view .bg-glow-home, html.home-view .bg-vignette-home { opacity: 1; }
+html.home-view .bg-glow, html.home-view .bg-vignette { opacity: 0; }
+.bg-page { opacity: 0; filter: blur(3px) saturate(1.15) brightness(0.85); background-size: cover; background-position: center; transition: opacity 0.8s ease; }
+.bg-page.on { opacity: 1; }
+html.home-view .bg-page { opacity: 0; }
