@@ -74,6 +74,7 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
     section: "Home",
     animeSub: "Flow Frames",
     animeSeries: null,
+    animeChar: null,
     animeSort: "az",
     animeLetter: "ALL",
     movieId: null,
@@ -689,6 +690,30 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
           fadeSub(function () { render(); });
         };
 
+        if (state.animeChar) {
+          crumbPath.innerHTML = "Anime &nbsp;/&nbsp; " + state.animeSeries + " &nbsp;/&nbsp; <strong>" + state.animeChar + "</strong>";
+          backBtn.onclick = function () { state.animeChar = null; fadeMain(function () { render(); }); };
+          var files = CLIPS.filter(function (c) { return c.section === "Anime" && c.series === state.animeSeries && c.title === state.animeChar; });
+          renderQualityPills(files);
+          var lead = files[0] || {};
+          updateSpotlight({
+            eyebrow: "ANIME • " + state.animeSeries.toUpperCase(),
+            title: state.animeChar,
+            subtitle: "Everything available for " + state.animeChar + ". Pick what you need.",
+            thumbnail: lead.thumbnail || "images/anime.jpg",
+            tags: [state.animeSeries].concat(lead.tags || []),
+            countText: files.length + (files.length === 1 ? " file" : " files"),
+            ctaLabel: "Browse Files ↓"
+          });
+          gridSection.hidden = false;
+          gridTitle.textContent = state.animeChar + " - all files";
+          countEl.textContent = files.length + (files.length === 1 ? " file" : " files");
+          grid.classList.add("char-detail");
+          files.forEach(function (c) { grid.appendChild(buildCard(c)); });
+          emptyEl.hidden = files.length > 0;
+          return;
+        }
+
         var chars = inSub.filter(function (c) { return c.series === state.animeSeries; });
         renderQualityPills(chars);
         var shownChars = chars.filter(matchesSearch);
@@ -710,7 +735,17 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
         gridSection.hidden = false;
         gridTitle.textContent = "All " + state.animeSeries + " Characters (" + state.animeSub + ")";
         countEl.textContent = shownChars.length + (shownChars.length === 1 ? " character" : " characters");
-        shownChars.forEach(function (c) { grid.appendChild(buildCard(c)); });
+        grid.classList.add("in-series");
+        shownChars.forEach(function (c) {
+          var card = buildCard(c);
+          card.classList.add("clickable");
+          card.tabIndex = 0;
+          card.setAttribute("role", "button");
+          var open = function () { state.animeChar = c.title; fadeMain(function () { render(); }); };
+          card.addEventListener("click", open);
+          card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+          grid.appendChild(card);
+        });
         emptyEl.hidden = shownChars.length > 0;
         return;
       }
@@ -1068,9 +1103,6 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
 
     function frame(t) {
       requestAnimationFrame(frame);
-      var home = document.documentElement.classList.contains("home-view");
-      if (!home) { if (wasHome) ctx.clearRect(0, 0, W, H); wasHome = false; last = t; return; }
-      wasHome = true;
       var dt = Math.min((t - last) / 1000 || 0.016, 0.05); last = t;
       var time = t / 1000;
       ctx.clearRect(0, 0, W, H);
@@ -1096,31 +1128,37 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
   // ---------- Per-page backgrounds (smooth crossfade). Files: images/<name>-background.jpg ----------
   var bgLayers = [$("bgA"), $("bgB")], bgActive = -1, bgUrl = null, bgToken = 0;
   function bgSlug(v) { return String(v).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
-  function setPageBg(url) {
-    if (url === bgUrl) return;
-    bgUrl = url;
+  function setPageBg(urls) {
+    var key = urls.join("|");
+    if (key === bgUrl) return;
+    bgUrl = key;
     var token = ++bgToken;
     function hideAll() { bgLayers.forEach(function (l) { l.classList.remove("on"); }); bgActive = -1; }
-    if (!url) { hideAll(); return; }
-    var im = new Image();
-    im.onload = function () {
-      if (token !== bgToken) return;
-      var next = bgActive === 0 ? 1 : 0;
-      bgLayers[next].style.backgroundImage = "url(" + url + ")";
-      bgLayers[next].classList.add("on");
-      if (bgActive > -1) bgLayers[bgActive].classList.remove("on");
-      bgActive = next;
-    };
-    im.onerror = function () { if (token === bgToken) hideAll(); };
-    im.src = url;
+    if (!urls.length) { hideAll(); return; }
+    (function tryAt(i) {
+      if (i >= urls.length) { if (token === bgToken) hideAll(); return; }
+      var im = new Image();
+      im.onload = function () {
+        if (token !== bgToken) return;
+        var next = bgActive === 0 ? 1 : 0;
+        bgLayers[next].style.backgroundImage = "url(" + urls[i] + ")";
+        bgLayers[next].classList.add("on");
+        if (bgActive > -1) bgLayers[bgActive].classList.remove("on");
+        bgActive = next;
+      };
+      im.onerror = function () { if (token === bgToken) tryAt(i + 1); };
+      im.src = urls[i];
+    })(0);
   }
   function updateBackground(searching) {
     if (searching) return;
-    var url = "";
-    if (state.section === "Anime") url = "images/" + (state.animeSeries ? bgSlug(state.animeSeries) : "anime") + "-background.jpg";
-    else if (state.section === "Movie") url = "images/movie-background.jpg";
-    else if (state.section === "Others") url = "images/others-background.jpg";
-    setPageBg(url);
+    var urls = [];
+    if (state.section === "Anime") {
+      if (state.animeSeries && state.animeChar) urls.push("images/" + bgSlug(state.animeChar) + "-background.jpg");
+      urls.push("images/" + (state.animeSeries ? bgSlug(state.animeSeries) : "anime") + "-background.jpg");
+    } else if (state.section === "Movie") urls.push("images/movie-background.jpg");
+    else if (state.section === "Others") urls.push("images/others-background.jpg");
+    setPageBg(urls);
   }
 
   // ---------- Header tools: Sort + Search + A-Z live in the top-right of the page header ----------
@@ -1152,8 +1190,27 @@ var SHOW_ANIME = ["Naruto", "One Piece"];
     toolsHost.classList.toggle("has", toolsRow.childElementCount > 0);
     if (vis) window.dispatchEvent(new Event("resize"));
   }
+  function staggerIn() {
+    if (state.section === "Home" && !state.query) return;
+    var nodes = document.querySelectorAll("#stageBody .spotlight-card, #stageBody .cat-block-head, #stageBody .card, #stageBody .poster-item, #stageBody .collection-card");
+    var n = 0;
+    Array.prototype.forEach.call(nodes, function (node) {
+      if (node.offsetParent === null) return;
+      node.classList.remove("enter-anim");
+      node.style.animationDelay = Math.min(n++, 28) * 32 + "ms";
+      void node.offsetWidth;
+      node.classList.add("enter-anim");
+    });
+  }
   var renderBase = render;
-  render = function () { renderBase(); placeTools(); };
+  render = function () {
+    if (!state.animeSeries) state.animeChar = null;
+    grid.classList.remove("in-series", "char-detail");
+    renderBase();
+    if (state.section === "Anime" && state.animeSeries) dockTabsWrap.hidden = true;
+    placeTools();
+    staggerIn();
+  };
 
   render();
 })();

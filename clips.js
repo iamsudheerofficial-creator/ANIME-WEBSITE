@@ -34,6 +34,7 @@ const ANIME_META = [
 const CLIPS = [
   // ---- ANIME -> FLOW FRAMES -> NARUTO (All Naruto Characters) ----
   { title: "Hiruzen Sarutobi", section: "Anime", sub: "Flow Frames", series: "Naruto", quality: "4K", tags: ["Lord 3rd", "Third Hokage", "flow frame"], thumbnail: "images/hiruzen-sarutobi.jpg", link: "PASTE-YOUR-LINK-HERE", popular: true, recent: true },
+  { title: "Hinata Hyuga", section: "Anime", sub: "Flow Frames", series: "Naruto", quality: "4K", tags: ["Byakugan", "Hyuga", "flow frame"], thumbnail: "images/hinata-hyuga.jpg", link: "PASTE-YOUR-LINK-HERE", recent: true },
   { title: "Naruto Uzumaki", section: "Anime", sub: "Flow Frames", series: "Naruto", quality: "4K", tags: ["Seventh Hokage", "flow frame"], thumbnail: "", link: "PASTE-YOUR-LINK-HERE", recent: true },
   { title: "Sasuke Uchiha", section: "Anime", sub: "Flow Frames", series: "Naruto", quality: "4K", tags: ["Uchiha", "flow frame"], thumbnail: "", link: "PASTE-YOUR-LINK-HERE" },
   { title: "Itachi Uchiha", section: "Anime", sub: "Flow Frames", series: "Naruto", quality: "4K", tags: ["Akatsuki", "Uchiha"], thumbnail: "", link: "PASTE-YOUR-LINK-HERE" },
