@@ -946,7 +946,7 @@ html.home-view #snow { opacity: 1; }
    ============================================================ */
 
 /* header: flat, no glass box */
-html:not(.home-view) .spotlight-card { background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 6px 4px 0; grid-template-columns: 96px 1fr; gap: 18px; margin-bottom: 14px; }
+html:not(.home-view) .spotlight-card { background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 6px 4px 0; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px; margin-bottom: 14px; }
 html:not(.home-view) .spot-art { width: 96px; max-width: 96px; aspect-ratio: 1; border-radius: 22px; }
 html:not(.home-view) .spot-title { font-size: clamp(1.8rem, 3.2vw, 2.8rem); }
 html:not(.home-view) .spot-tags { display: none; }
@@ -960,7 +960,7 @@ html:not(.home-view) .sec-title { font-size: 1.5rem; font-weight: 800; letter-sp
 
 /* tall dark cards with the info on the bottom edge */
 html:not(.home-view) .card, html:not(.home-view) .collection-card, html:not(.home-view) .poster-frame {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)), rgba(12, 16, 24, 0.34); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 26px;
   backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 html:not(.home-view) .card, html:not(.home-view) .collection-card { position: relative; overflow: hidden; }
@@ -987,4 +987,19 @@ html.home-view .bg-glow-home, html.home-view .bg-vignette-home { opacity: 1; }
 html.home-view .bg-glow, html.home-view .bg-vignette { opacity: 0; }
 .bg-page { opacity: 0; filter: blur(3px) saturate(1.15) brightness(0.85); background-size: cover; background-position: center; transition: opacity 0.8s ease; }
 .bg-page.on { opacity: 1; }
-html.home-view .bg-page { opacity: 0; }
+
+/* Fast page fades: no backdrop blur inside the animated area (the background is already blurred) */
+html:not(.home-view) .stage-body *, html:not(.home-view) .spotlight-card * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
+/* Header tools (Sort + Search on top, A-Z below) */
+.spot-tools { display: none; }
+.spot-tools.has { display: flex; flex-direction: column; align-items: center; gap: 12px; align-self: start; margin-top: 4px; }
+.tools-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.spot-tools .alpha-bar { width: auto !important; max-width: 100%; margin: 0 !important; position: static !important; border: 0 !important; border-radius: 999px; padding: 5px 8px; background: rgba(255, 255, 255, 0.06); box-shadow: none !important; flex-wrap: nowrap; }
+.spot-tools .alpha-btn { min-width: 26px; padding: 6px 3px; }
+.library-controls:not(:has(.sort-tabs, .alpha-bar)) { display: none; }
+@media (max-width: 900px) {
+  html:not(.home-view) .spotlight-card { grid-template-columns: 96px minmax(0, 1fr); }
+  .spot-tools.has { grid-column: 1 / -1; width: 100%; }
+  .spot-tools .alpha-bar { overflow-x: auto; }
+}

@@ -1,3 +1,14 @@
+// Only these anime are shown. Add a name here later to bring another one back.
+var SHOW_ANIME = ["Naruto", "One Piece"];
+(function () {
+  for (var i = CLIPS.length - 1; i >= 0; i--) {
+    if (CLIPS[i].section === "Anime" && SHOW_ANIME.indexOf(CLIPS[i].series) === -1) CLIPS.splice(i, 1);
+  }
+  for (var j = ANIME_META.length - 1; j >= 0; j--) {
+    if (SHOW_ANIME.indexOf(ANIME_META[j].name) === -1) ANIME_META.splice(j, 1);
+  }
+})();
+
 (function () {
   "use strict";
 
@@ -176,7 +187,7 @@
     }, 300);
   }
 
-  function fadeMain(updateFn) { runFade(stageBody, "main", updateFn); }
+  function fadeMain(updateFn) { updateBackground(state.query.length > 0); runFade(stageBody, "main", updateFn); }
   function fadeSub(updateFn) { runFade(subStage, "sub", updateFn); }
   // Fades only a results grid (used by A-Z letters and Sort tabs) so the controls stay still
   function fadeGrid(gridEl, key, updateFn) {
@@ -1111,6 +1122,38 @@
     else if (state.section === "Others") url = "images/others-background.jpg";
     setPageBg(url);
   }
+
+  // ---------- Header tools: Sort + Search + A-Z live in the top-right of the page header ----------
+  var toolsHost = el("div", "spot-tools"), toolsRow = el("div", "tools-row");
+  toolsHost.appendChild(toolsRow);
+  spotlightSection.appendChild(toolsHost);
+  var searchEl = document.querySelector(".nav-right .search"), navRightEl = document.querySelector(".nav-right");
+  var toolGroups = Array.prototype.map.call(document.querySelectorAll(".library-controls"), function (lc) {
+    return { lc: lc, sort: lc.querySelector(".sort-tabs"), alpha: lc.querySelector(".alpha-bar") };
+  });
+  function placeTools() {
+    var vis = null;
+    toolGroups.forEach(function (g) { if (!vis && !spotlightSection.hidden && !g.lc.closest("[hidden]")) vis = g; });
+    toolGroups.forEach(function (g) {
+      if (g === vis) {
+        if (g.sort && g.sort.parentNode !== toolsRow) toolsRow.insertBefore(g.sort, toolsRow.firstChild);
+        if (g.alpha && g.alpha.parentNode !== toolsHost) toolsHost.appendChild(g.alpha);
+      } else {
+        if (g.sort && g.sort.parentNode !== g.lc) g.lc.appendChild(g.sort);
+        if (g.alpha && g.alpha.parentNode !== g.lc) g.lc.appendChild(g.alpha);
+      }
+    });
+    if (searchEl && navRightEl) {
+      var focused = document.activeElement && searchEl.contains(document.activeElement);
+      var wantInHeader = !!vis || focused || (state.query.length > 0 && !spotlightSection.hidden);
+      if (wantInHeader && searchEl.parentNode !== toolsRow) toolsRow.appendChild(searchEl);
+      else if (!wantInHeader && searchEl.parentNode !== navRightEl) navRightEl.appendChild(searchEl);
+    }
+    toolsHost.classList.toggle("has", toolsRow.childElementCount > 0);
+    if (vis) window.dispatchEvent(new Event("resize"));
+  }
+  var renderBase = render;
+  render = function () { renderBase(); placeTools(); };
 
   render();
 })();
